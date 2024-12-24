@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customizable QR Code Generator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: #fff;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 20px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    input, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+    }
+
+    input[type="color"] {
+      height: 50px;
+    }
+
+    button {
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #2575fc, #6a11cb);
+    }
+
+    #qr-code {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    img {
+      margin-top: 20px;
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <h1>Custom QR Code Generator</h1>
+  <div class="container">
+    <label for="text">Enter Text or URL:</label>
+    <input type="text" id="text" placeholder="Type here...">
+
+    <label for="color">Pick a Color:</label>
+    <input type="color" id="color" value="#000000">
+
+    <label for="logo">Upload a Logo (optional):</label>
+    <input type="file" id="logo" accept="image/*">
+
+    <button onclick="generateQRCode()">Generate QR Code</button>
+
+    <div id="qr-code"></div>
+  </div>
+
+  <script>
+    async function generateQRCode() {
+      const text = document.getElementById('text').value;
+      const color = document.getElementById('color').value;
+      const logoFile = document.getElementById('logo').files[0];
+      const qrCodeDiv = document.getElementById('qr-code');
+      qrCodeDiv.innerHTML = '';
+
+      if (text) {
+        const formData = new FormData();
+        formData.append('text', text);
+        formData.append('color', color);
+        if (logoFile) {
+          formData.append('logo', logoFile);
+        }
+
+        const response = await fetch('/generate-qr', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const img = document.createElement('img');
+          img.src = URL.createObjectURL(blob);
+          qrCodeDiv.appendChild(img);
+        } else {
+          alert('Failed to generate QR code.');
+        }
+      } else {
+        alert('Please enter text or URL');
+      }
+    }
+  </script>
+</body>
+</html>
